@@ -1,7 +1,7 @@
 #cursor-icon {
     position: fixed;
     top: 0;
-    left: 0;
+    left: 10;
     display: none;
     z-index: 1000;
     background: rgba(0, 0, 0, .2);

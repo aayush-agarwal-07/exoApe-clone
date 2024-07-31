@@ -1,61 +1,58 @@
-import './CursorIcon.css'
-import { gsap, Power2 } from 'gsap'
+// CursorIcon.js
+import React, { useRef, useEffect, useState } from 'react';
+import './CursorIcon.css';
 
-export default class CursorIcon {
+const CursorIcon = () => {
+    const cursorRef = useRef(null);
+    const [visible, setVisible] = useState(false);
 
-    visibile = false
+    useEffect(() => {
+        const handleMouseMove = (event) => {
+            if (cursorRef.current) {
+                const { clientX: mouseX, clientY: mouseY } = event;
+                cursorRef.current.style.left = `${mouseX}px`;
+                cursorRef.current.style.top = `${mouseY}px`;
+            }
+        };
 
-    elements = {
-        cursor: document.getElementById('cursor-icon')
-    }
+        window.addEventListener('mousemove', handleMouseMove);
 
-    constructor() {
-        //global access
-        window.cursorIcon = this
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
 
-        this.setupEventListeners()
-    }
-
-    setupEventListeners() {
-        window.addEventListener('mousemove', (event) => {
-            //move using gsap
-            gsap.to(this.elements.cursor, {
-                x: event.clientX,
-                y: event.clientY,
-                duration: 1,
-                ease: Power2.easeOut
-            })
-        })
-    }
-
-    show(text) {
-        this.elements.cursor.innerHTML = text
-
-        if (!this.visibile) {
-            this.visibile = true
-
-            this.elements.cursor.style.display = 'flex'
-
-            gsap.killTweensOf(this.elements.cursor)
-
-            //Scale up
-            gsap.to(this.elements.cursor, { scale: 1, duration: .3 })
+    const show = (text) => {
+        if (cursorRef.current) {
+            cursorRef.current.innerHTML = text;
+            if (!visible) {
+                setVisible(true);
+                cursorRef.current.style.display = 'flex';
+                cursorRef.current.style.transform = 'scale(1)';
+            }
         }
-    }
+    };
 
-    hide() {
-        if (this.visibile) {
-            this.visibile = false
-
-            gsap.killTweensOf(this.elements.cursor)
-
-            //Scale down
-            gsap.to(this.elements.cursor, {
-                scale: 0, duration: .3, onComplete: () => {
-                    //hide on complete
-                    this.elements.cursor.style.display = 'none'
-                }
-            })
+    const hide = () => {
+        if (visible) {
+            setVisible(false);
+            if (cursorRef.current) {
+                cursorRef.current.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    cursorRef.current.style.display = 'none';
+                }, 300); // Duration of the scale transition
+            }
         }
-    }
-}
+    };
+
+    return (
+        <div
+            id="cursor-icon"
+            ref={cursorRef}
+            className="cursor-icon"
+            style={{ display: visible ? 'flex' : 'none' }}
+        />
+    );
+};
+
+export default CursorIcon;
